@@ -89,6 +89,7 @@ class UserController extends Controller
        // read user data from request body
        $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
+       // check if all information of a user is filled
        if (!isset( $postedUser->email) || !isset( $postedUser->password) 
            || !isset( $postedUser->firstName) || !isset( $postedUser->lastName) 
            || !isset( $postedUser->secretCode) || !isset( $postedUser->role)) {
@@ -96,25 +97,41 @@ class UserController extends Controller
         return;
         }
 
-        // if ($postedUser->role != "admin" || $postedUser->role != "user") {
-        //     $this->respondWithError(400, "role must be filled as admin or user ");
-        // return;
-        // }
+        //check if email is in a correct format
+        if (!filter_var($postedUser->email, FILTER_VALIDATE_EMAIL)) {
+            $this->respondWithError(401, "invalid email address filled ");
+            return;
+        }
 
+        //check if role is in correct format
+        if ($postedUser->role != "admin" and $postedUser->role != "user") {
+            
+            $this->respondWithError(400, "role must be filled as admin or user ");
+        return;
+        }
+
+        // making admin role can be done only by admin this method checks otherwise gives error respons
         if ($postedUser->role == "admin" ) {
             $tocken = $this->checkForJwt();
-              if ($tocken==null ) {
-                  $this->respondWithError(400, "You are not Authorized to creat admin role");
+              if ($tocken==null || $tocken->data->role !=  "admin") {
+                  $this->respondWithError(401, "You are not Authorized to creat admin role");
                   return;
                 }
             
+        }
+        
+        // this checks if email already exist
+        if ($this->service->getUserByEmail($postedUser->email) != null) {
+            $this->respondWithError(401, "email already exist");
+            return;
         }
 
        
       // register user to db
        $registerUser =$this->service->registerUser($postedUser);
 
-       return  $registerUser;
+       //return the resgisterd user
+       $this->respond($registerUser);
     
         
     }
@@ -123,16 +140,23 @@ class UserController extends Controller
     public function update($id)
     {
         try {
-          $admin ="admin";
+         
           $tocken = $this->checkForJwt();
           if ( $tocken->data->id != $id) {
-            if ($tocken->data->role !=  $admin) {
+            if ($tocken->data->role !=  "admin") {
                 $this->respondWithError(401, "You are not Authorized to change this account data");
                 return;
               }
           }
-            $user = $this->createObjectFromPostedJson("Models\\User");
-            $user = $this->service->update($user, $id);
+            $postedUser = $this->createObjectFromPostedJson("Models\\User");
+
+             // check if all information of a user is filled
+            if (!isset( $postedUser->firstName) || !isset( $postedUser->lastName) 
+           || !isset( $postedUser->secretCode)) {
+        $this->respondWithError(400, "firstName, lastName, secretCode must be filled ");
+        return;
+        }
+            $user = $this->service->update($postedUser, $id);
 
         } catch (Exception $e) {
             $this->respondWithError(500, $e->getMessage());
@@ -147,13 +171,22 @@ class UserController extends Controller
         try {
             $postedUser = $this->createObjectFromPostedJson("Models\\User");
             
-            $user = $this->service->getSecretCodeByEmail($postedUser->email);
+             // check if all information of a user is filled
+            if (!isset( $postedUser->email) || !isset( $postedUser->password) || !isset( $postedUser->secretCode)) {
+         $this->respondWithError(400, "email, password and secretCode must be filled ");
+         return;
+         }
+
+           // get user by email adress
+            $user = $this->service->getUserByEmail($postedUser->email);
            
+            //check if a user fill a correct secret code
             if ($user->secretCode != $postedUser->secretCode) {
                 $this->respondWithError(404, "your secret code is wrong try again");
                 return;
             }
 
+            //change password in db
             $changePassword =$this->service->changePassword($user->id,$postedUser->password);
             $this->respond( $changePassword);
         } catch (Exception $e) {

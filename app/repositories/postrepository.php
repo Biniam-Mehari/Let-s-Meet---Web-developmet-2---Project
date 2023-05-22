@@ -70,9 +70,9 @@ class PostRepository extends Repository
     function insert($post)
     {
         try {
-            $stmt = $this->connection->prepare("INSERT into post (userId, date, postIdea, privacy) VALUES (?,?,?,?)");
+            $stmt = $this->connection->prepare("INSERT into post (userId, date, postIdea, privacy,status) VALUES (?,?,?,?,?)");
 
-            $stmt->execute([$post->userId, $post->date, $post->postIdea, $post->privacy]);
+            $stmt->execute([$post->userId, $post->date, $post->postIdea, $post->privacy,$post->status]);
 
             $post = $this->connection->lastInsertId();
 
@@ -86,9 +86,9 @@ class PostRepository extends Repository
     function update($post, $id)
     {
         try {
-            $stmt = $this->connection->prepare("UPDATE post SET postIdea = ?, date = ?, privacy = ? WHERE postId = ?");
+            $stmt = $this->connection->prepare("UPDATE post SET postIdea = ?, privacy = ? WHERE postId = ?");
 
-            $stmt->execute([$post->postIdea, $post->date, $post->privacy, $id]);
+            $stmt->execute([$post->postIdea, $post->privacy, $id]);
 
             return $this->getOne($id);
         } catch (PDOException $e) {

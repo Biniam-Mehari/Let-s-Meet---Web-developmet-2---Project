@@ -22,9 +22,9 @@ class UserService {
         return $this->repository->update($user, $id);        
     }
 
-    public function getSecretCodeByEmail($email)
+    public function getUserByEmail($email)
     {
-        return $this->repository->getSecretCodeByEmail($email);
+        return $this->repository->getUserByEmail($email);
     }
     public function changePassword($id,$password)
     {

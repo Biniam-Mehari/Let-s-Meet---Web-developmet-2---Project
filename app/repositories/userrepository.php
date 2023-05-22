@@ -87,7 +87,7 @@ class UserRepository extends Repository
      }
 
      //checks the given secret code with the already in database
-    function getSecretCodeByEmail($email)
+    function getUserByEmail($email)
      {
         try {
            
@@ -100,10 +100,8 @@ class UserRepository extends Repository
             if ($row == null) {
                 return null;
             }
-            $user= new User();
-            $user->secretCode = $row["secretCode"];
-            $user->id = $row["id"];
-            return $user;
+           
+            return $this->rowToUser($row);
         } catch (PDOException $e) {
             echo $e;
         }
@@ -153,9 +151,9 @@ class UserRepository extends Repository
         $user->id = $row["id"];
         $user->firstName = $row["firstName"];
         $user->lastName = $row["lastName"];
-        $user->secretCode = $row["email"];
+        $user->email = $row["email"];
         $user->secretCode = $row["secretCode"];
-        $user->secretCode = $row["role"];
+        $user->role = $row["role"];
         return $user;
      }
 }
