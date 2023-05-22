@@ -21,6 +21,11 @@ class UserController extends Controller
        // read user data from request body
        $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
+       if (!isset( $postedUser->email) || !isset( $postedUser->password)) {
+        $this->respondWithError(400, "email and password must be filled ");
+        return;
+    }
+
        // get user from db
        $user = $this->service->checkEmailPassword($postedUser->email, $postedUser->password);
 
@@ -36,6 +41,7 @@ class UserController extends Controller
        $this->respond($tokenResponse);    
     }
     public function generateJwt($user) {
+        
         $secret_key = "YOUR_SECRET_KEY";
 
         $issuer = "THE_ISSUER"; // this can be the domain/servername that issues the token
@@ -83,8 +89,32 @@ class UserController extends Controller
        // read user data from request body
        $postedUser = $this->createObjectFromPostedJson("Models\\User");
 
-         // register user to db
+       if (!isset( $postedUser->email) || !isset( $postedUser->password) 
+           || !isset( $postedUser->firstName) || !isset( $postedUser->lastName) 
+           || !isset( $postedUser->secretCode) || !isset( $postedUser->role)) {
+        $this->respondWithError(400, "firstName, lastName, email, password, secretCode,role must be filled ");
+        return;
+        }
+
+        // if ($postedUser->role != "admin" || $postedUser->role != "user") {
+        //     $this->respondWithError(400, "role must be filled as admin or user ");
+        // return;
+        // }
+
+        if ($postedUser->role == "admin" ) {
+            $tocken = $this->checkForJwt();
+              if ($tocken==null ) {
+                  $this->respondWithError(400, "You are not Authorized to creat admin role");
+                  return;
+                }
+            
+        }
+
+       
+      // register user to db
        $registerUser =$this->service->registerUser($postedUser);
+
+       return  $registerUser;
     
         
     }

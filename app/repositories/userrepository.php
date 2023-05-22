@@ -40,18 +40,22 @@ class UserRepository extends Repository
 
     function registerUser($postedUser)
     {
-        $role = "user";
+       // $role = "user";
          // hash the password
        $hashedpassword = $this->hashPassword($postedUser->password);
-       // retrieve the user with the given username
-       $stmt = $this->connection->prepare("INSERT INTO user ( firstName , lastName, password, email , role , secretCode) VALUES (:firstName , :lastName, :password, :email , :role,:secretCode)");
+       
+       $stmt = $this->connection->prepare("INSERT INTO user ( firstName , lastName, password, email , role , secretCode) VALUES (:firstName , :lastName, :password, :email , :role, :secretCode)");
        $stmt->bindParam(':firstName', $postedUser->firstName);
        $stmt->bindParam(':lastName', $postedUser->lastName);
        $stmt->bindParam(':password', $hashedpassword);
        $stmt->bindParam(':email', $postedUser->email);
-       $stmt->bindParam(':role',$role);
-       $stmt->bindParam(':secretCode',$secretCode);
+       $stmt->bindParam(':role',$postedUser->role);
+       $stmt->bindParam(':secretCode',$postedUser->secretCode);
        $stmt->execute();
+
+       $account = $this->connection->lastInsertId();
+
+            return $this->getOneAccountById($account);
     }
 
     // hash the password (currently uses bcrypt)
@@ -145,10 +149,13 @@ class UserRepository extends Repository
      function rowToUser($row)
      {
         $user= new User();
-        $user->secretCode = $row["secretCode"];
+        
         $user->id = $row["id"];
         $user->firstName = $row["firstName"];
         $user->lastName = $row["lastName"];
+        $user->secretCode = $row["email"];
+        $user->secretCode = $row["secretCode"];
+        $user->secretCode = $row["role"];
         return $user;
      }
 }
