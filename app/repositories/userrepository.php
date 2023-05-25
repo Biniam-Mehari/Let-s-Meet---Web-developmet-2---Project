@@ -156,4 +156,18 @@ class UserRepository extends Repository
         $user->role = $row["role"];
         return $user;
      }
+
+     function checkUserExist($userId)
+     {
+         $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id");
+             $stmt->bindParam(':id', $userId);
+             $stmt->execute();
+
+             $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $row = $stmt->fetch();
+            // if ($row == null) {
+            //     return false;
+            // }
+             return $row;
+     }
 }

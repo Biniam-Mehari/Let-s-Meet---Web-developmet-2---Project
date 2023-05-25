@@ -18,8 +18,6 @@ class MessageRepository extends Repository
     {
        try {
           
-           
-          
            $stmt = $this->connection->prepare( "SELECT * FROM message Where fromUser = :fromUser or toUser=:toUser");
           
            $stmt->bindParam(':fromUser', $userId);
@@ -30,8 +28,6 @@ class MessageRepository extends Repository
            while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {     
               $user = $this->rowToProductUser($row['fromUser']);
               if ($user->id != $userId) {
-                
-              
                if (!in_array( $user, $friendsWithNessage)) {
                 $friendsWithNessage[] = $user;
                }
@@ -43,8 +39,6 @@ class MessageRepository extends Repository
                 $friendsWithNessage[] = $user;
                }
             }
-            
-           
            }
 
            return $friendsWithNessage;
@@ -129,6 +123,15 @@ class MessageRepository extends Repository
             echo $e;
         }
         return true;
+     }
+
+     function checkIfOneConversationExist($loggedInUser,$friendId)
+     {
+        $stmt = $this->connection->prepare( "SELECT * FROM message Where fromUser = :fromUser or toUser=:toUser");
+          
+           $stmt->bindParam(':fromUser', $userId);
+           $stmt->bindParam(':toUser', $userId);
+           $stmt->execute();
      }
    
 }

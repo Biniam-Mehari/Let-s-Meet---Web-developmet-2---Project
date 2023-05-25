@@ -12,8 +12,8 @@ class FriendsService {
         $this->repository = new FriendsRepository();
     }
 
-    public function getAllMyFriends($userId,$offset = NULL, $limit = NULL) {
-        return $this->repository->getAllMyFriends($userId,$offset, $limit);
+    public function getAllMyFriends($userId) {
+        return $this->repository->getAllMyFriends($userId);
     }
 
     public function getOne($id) {

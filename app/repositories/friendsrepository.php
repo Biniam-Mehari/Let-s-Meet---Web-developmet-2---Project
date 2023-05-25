@@ -9,20 +9,15 @@ use Repositories\Repository;
 
 class FriendsRepository extends Repository
 {
-    function getAllMyFriends($userId,$offset = NULL, $limit = NULL)
+    function getAllMyFriends($userId)
     {
   
     try {
-       // $query = "SELECT * FROM post Where userId = :userId";
+       $query = "SELECT * FROM post Where userId = :userId";
         
-        // if (isset($limit) && isset($offset)) {
-        //     $query .= " LIMIT :limit OFFSET :offset ";
-        // }
+       
         $stmt = $this->connection->prepare( "SELECT * FROM friends Where user1 = :user1 or user2 = :user2");
-        // if (isset($limit) && isset($offset)) {
-        //     $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        //     $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-        // }
+        
         $stmt->bindParam(':user1', $userId);
         $stmt->bindParam(':user2', $userId);
         $stmt->execute();
@@ -80,13 +75,7 @@ class FriendsRepository extends Repository
     function insert($friend)
     {
         try {
-            //check if users exist before adding to the datatbase
-            $user1 = $this->checkUserExist($friend->user1);
-            $user2 = $this->checkUserExist($friend->user2);
-            if ($user1==false || $user2==false) {
-                return "user does not exist repo";
-            }
-            
+
             //check if users are already friends or a request has been sent
             $checkIfAlreadyFriends = $this->checkIfUersAreFriends($friend->user1,$friend->user2);
             if ($checkIfAlreadyFriends==true) {
@@ -108,27 +97,13 @@ class FriendsRepository extends Repository
         }
     }
 
-    function checkUserExist($userId)
-    {
-        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id");
-            $stmt->bindParam(':id', $userId);
-            $stmt->execute();
-
-           // $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
-            $user = $stmt->fetch();
-            
-            if ($user==null) {
-                return false;
-            }
-            return true;
-    }
+   
 
     function checkIfUersAreFriends($userId1,$userId2)
     {
         $stmt = $this->connection->prepare("SELECT * FROM friends WHERE (user1=? And user2=?) or (user1=? And user2=?)");
         $stmt->execute([$userId1, $userId2, $userId2, $userId1]);
 
-       // $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\Friends');
         $friends = $stmt->fetch();
         
         if ($friends==null) {

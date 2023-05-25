@@ -17,6 +17,14 @@ class MessageController extends Controller
 
     public function getfriendsSentOrReceiveMessage($userId)
     {
+        $tocken = $this->checkForJwt();
+        if (!$tocken) {
+            return;
+        } 
+         if ($tocken->data->id != $userId ) {
+           $this->respondWithError(400, "you can't see other user messages");
+           return;
+         }
         $friendshaveMessage = $this->service->getfriendsSentOrReceiveMessage($userId);
         if (!$friendshaveMessage) {
             $this->respondWithError(404, "your message list is empty");
@@ -28,14 +36,22 @@ class MessageController extends Controller
     public function getOneConversation()
     {
 
-       // todo use a direct input
-        $loggedInUser = 1;
-        $friendId = 2;
-        $conversation = $this->service->getOneConversation($loggedInUser,$friendId);
+      
 
-        // we might need some kind of error checking that returns a 404 if the product is not found in the DB
+        $tocken = $this->checkForJwt();
+        if (!$tocken) {
+            return;
+        } 
+        if (!isset($_GET['id'])){
+            $this->respondWithError(400, "provide an Id of user to see your conversation");
+            return;
+        }
+        
+        $conversation = $this->service->getOneConversation($tocken->data->id,isset($_GET['id']));
+
+        // error checking that returns a 404 if the conversation is not found in the DB
         if (!$conversation) {
-            $this->respondWithError(404, "post not found");
+            $this->respondWithError(404, "conversation not found");
             return;
         }
 

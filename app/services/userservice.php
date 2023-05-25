@@ -30,6 +30,11 @@ class UserService {
     {
         return $this->repository->changePassword($id,$password);
     }
+    public function checkUserExist($userId)
+    {
+        return $this->repository->checkUserExist($userId);
+    }
+    
 }
 
 ?>

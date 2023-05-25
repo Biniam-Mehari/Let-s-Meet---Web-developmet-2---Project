@@ -76,6 +76,12 @@ class PostController extends Controller
             return;
         }
 
+        //  error checking that returns a 404 if the post is not found in the DB
+        if ($post->status == "blocked") {
+            $this->respondWithError(400, "this post has been blocked. please contact admin for further information");
+            return;
+        }
+
         //check if post is private and prevent from displaying by other users
         if ( $tocken->data->id != $post->userId and  $post->privacy=="private") {
             $this->respondWithError(400, "you cant see this post it is private");

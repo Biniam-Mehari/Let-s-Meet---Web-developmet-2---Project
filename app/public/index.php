@@ -29,7 +29,7 @@ $router->delete('/posts/(\d+)', 'PostController@delete');
 //$router->get('/posts/ByUserId/(\d+)', 'PostController@getPostByUserId');
 
 // routes for the friends endpoint
-$router->get('/categories', 'CategoryController@getAll');
+//$router->get('/categories', 'CategoryController@getAll');
 $router->get('/friends/(\d+)', 'FriendsController@getAllMyFriends');
 $router->post('/friends', 'FriendsController@create');
 $router->put('/friends/(\d+)', 'FriendsController@update');
