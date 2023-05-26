@@ -46,8 +46,9 @@ class MessageController extends Controller
             $this->respondWithError(400, "provide an Id of user to see your conversation");
             return;
         }
-        
-        $conversation = $this->service->getOneConversation($tocken->data->id,isset($_GET['id']));
+        $loggedInId = $tocken->data->id;
+        $friendId = $_GET['id'];
+        $conversation = $this->service->getOneConversation( $loggedInId,$friendId);
 
         // error checking that returns a 404 if the conversation is not found in the DB
         if (!$conversation) {
@@ -62,14 +63,27 @@ class MessageController extends Controller
     {
         try {
            
+            $tocken = $this->checkForJwt();
+        if (!$tocken) {
+            return;
+        } 
+      
             $message = $this->createObjectFromPostedJson("Models\\Message");
+            $message->fromUserId = $tocken->data->id;
+
+            // check if all information of a user is filled
+         if (!isset( $message->toUserId) 
+         || !isset( $message->message) ) {
+             $this->respondWithError(400, "toUserId and message must be filled ");
+             return;
+         }
 
             if ($message->fromUserId == $message->toUserId) {
                 $this->respondWithError(404, "you cant send message to yourself");
             return;
             }
            $messageSent= $this->service->insert($message);
-            return  $messageSent;
+           // return  $messageSent;
         
         } catch (Exception $e) {
             $this->respondWithError(500, $e->getMessage());

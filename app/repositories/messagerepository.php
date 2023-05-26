@@ -65,9 +65,9 @@ class MessageRepository extends Repository
     {
         try {
          
-            $stmt = $this->connection->prepare("SELECT * FROM message  WHERE (fromUser = :loggedInUser and toUser= :friendId) or (fromUser = :friendId and toUser= :loggedInUser)");
-            $stmt->bindParam(':loggedInUser', $loggedInUser);
-            $stmt->bindParam(':friendId', $friendId);
+            $stmt = $this->connection->prepare("SELECT * FROM message  WHERE (fromUser = :loggedInUser1 and toUser= :friendId1) or (fromUser = :friendId and toUser= :loggedInUser) ORDER BY date DESC");
+            $stmt->bindParam(':loggedInUser1', $loggedInUser);
+            $stmt->bindParam(':friendId1', $friendId);
             $stmt->bindParam(':friendId', $friendId);
             $stmt->bindParam(':loggedInUser', $loggedInUser);
             $stmt->execute();
