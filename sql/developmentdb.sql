@@ -43,7 +43,7 @@ CREATE TABLE `user` (
 
 INSERT INTO `user` (`id`, `firstName`, `lastName`, `password`, `email`, `role`, `secretCode`) VALUES
 (1, 'david', 'david', '$2y$10$DQlV0u9mFmtOWsOdxXX9H.4kgzEB3E8o97s.S.Pdy4klUAdBvtVh.', 'username@password.com', '0', 'hello'),
-(2, '1234', '1234', '$2y$10$RBWDT9l7NyNYTZkgH/lFvupQGfJ.LY4u4F55bY1EQU39lem0l23pC', 'bini', 'user', '1234'),
+(2, 'john', 'david', '$2y$10$RBWDT9l7NyNYTZkgH/lFvupQGfJ.LY4u4F55bY1EQU39lem0l23pC', 'john@meet.nl', 'user', '1234'),
 (3, 'tommy', 'the king', '$2y$10$m60mikaNY7HCuCihyK1ih.DbszzhjtrRvxSpFIFTEJ0lIAmreiP22', 'tom', 'user', 'tom');
 
 --
