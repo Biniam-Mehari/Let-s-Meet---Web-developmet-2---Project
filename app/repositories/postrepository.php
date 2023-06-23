@@ -13,15 +13,20 @@ class PostRepository extends Repository
     function getAll($offset, $limit)
     {
         try {
-            $query = "SELECT * FROM post";
+            $privacy = "public";
+            $query = "SELECT * FROM post where privacy = :privacy";
+            
             if (isset($limit) && isset($offset)) {
                 $query .= " LIMIT :limit OFFSET :offset ";
             }
             $stmt = $this->connection->prepare($query);
+            
             if (isset($limit) && isset($offset)) {
                 $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
                 $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+                
             }
+            $stmt->bindParam(':privacy', $privacy);
             $stmt->execute();
 
             $posts = array();

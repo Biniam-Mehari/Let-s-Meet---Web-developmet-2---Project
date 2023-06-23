@@ -20,7 +20,7 @@ class FriendsController extends Controller
 
     public function getAllMyFriends($userId)
     {
-         //check if a user is updating his post 
+         //check if a user is logged in
          $tocken = $this->checkForJwt();
         if (!$tocken) {
             return;
@@ -44,6 +44,8 @@ class FriendsController extends Controller
         }
         $this->respond($friends);
     }
+
+   
 
     public function create()
     {

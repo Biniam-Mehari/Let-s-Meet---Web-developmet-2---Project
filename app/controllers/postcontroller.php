@@ -20,15 +20,18 @@ class PostController extends Controller
     public function getAll()
     {
 
-        if (!$this->checkForJwt()) {
-            return ;
-         }
+       //check if user logged in and provide token
+       $tocken = $this->checkForJwt();
+       if (!$tocken) {
+           return ;
+        }
+           
 
         $offset = 0;
         $limit = 10;
         $userId = null;
 
-        //TODO: check for limit and offset
+        
         if (isset($_GET["offset"]) && is_numeric($_GET["offset"])) {
             $offset = $_GET["offset"];
         }
@@ -78,7 +81,7 @@ class PostController extends Controller
 
         //  error checking that returns a 404 if the post is not found in the DB
         if ($post->status == "blocked") {
-            $this->respondWithError(400, "this post has been blocked. please contact admin for further information");
+            $this->respondWithError(404, "this post has been blocked. please contact admin for further information");
             return;
         }
 

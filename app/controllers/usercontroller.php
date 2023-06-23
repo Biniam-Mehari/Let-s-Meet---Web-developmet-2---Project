@@ -195,4 +195,20 @@ class UserController extends Controller
 
         
     }
+    public function getAllUsersNotFriends(){
+        //check if a user is updating his post 
+        $tocken = $this->checkForJwt();
+       if (!$tocken) {
+           return;
+       } 
+       
+       $users = $this->service->getAllUsersNotFriends($tocken->data->id);
+       if (!$users) {
+           $this->respondWithError(404, "user list is empty");
+           return;
+       }
+       $this->respond($users);
+       
+   }
+   
 }

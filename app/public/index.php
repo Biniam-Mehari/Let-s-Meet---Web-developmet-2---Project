@@ -18,10 +18,11 @@ $router->post('/users/login', 'UserController@login');//with out tocken check
 $router->post('/users', 'UserController@registerUser'); //with out tocken check
 $router->put('/users/(\d+)', 'UserController@update');
 $router->put('/users/forgetpassword', 'UserController@forgetPassword'); //with out tocken check
+$router->get('/users', 'UserController@getAllUsersNotFriends');
 
 // routes for the posts endpoint
 $router->get('/posts', 'PostController@getAll');
-$router->get('/posts/(\d+)', 'PostController@getOne');
+//$router->get('/posts/(\d+)', 'PostController@getOne');
 $router->post('/posts', 'PostController@create');
 $router->put('/posts/update/(\d+)', 'PostController@update');
 $router->put('/posts/block/(\d+)', 'PostController@blockPost');

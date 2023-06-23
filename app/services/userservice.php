@@ -34,6 +34,9 @@ class UserService {
     {
         return $this->repository->checkUserExist($userId);
     }
+    public function getAllUsersNotFriends($userId) {
+        return $this->repository->getAllUsersNotFriends($userId);
+    }
     
 }
 

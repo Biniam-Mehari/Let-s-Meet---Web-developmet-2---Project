@@ -15,6 +15,7 @@ class FriendsService {
     public function getAllMyFriends($userId) {
         return $this->repository->getAllMyFriends($userId);
     }
+    
 
     public function getOne($id) {
         return $this->repository->getOne($id);

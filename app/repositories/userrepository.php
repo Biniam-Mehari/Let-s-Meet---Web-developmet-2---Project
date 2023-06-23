@@ -19,8 +19,8 @@ class UserRepository extends Repository
 
             $stmt->setFetchMode(PDO::FETCH_CLASS, 'Models\User');
             $user = $stmt->fetch();
-            
-            if ($user==null) {
+
+            if ($user == null) {
                 return false;
             }
             // verify if the password matches the hash in the database
@@ -40,22 +40,22 @@ class UserRepository extends Repository
 
     function registerUser($postedUser)
     {
-       // $role = "user";
-         // hash the password
-       $hashedpassword = $this->hashPassword($postedUser->password);
-       
-       $stmt = $this->connection->prepare("INSERT INTO user ( firstName , lastName, password, email , role , secretCode) VALUES (:firstName , :lastName, :password, :email , :role, :secretCode)");
-       $stmt->bindParam(':firstName', $postedUser->firstName);
-       $stmt->bindParam(':lastName', $postedUser->lastName);
-       $stmt->bindParam(':password', $hashedpassword);
-       $stmt->bindParam(':email', $postedUser->email);
-       $stmt->bindParam(':role',$postedUser->role);
-       $stmt->bindParam(':secretCode',$postedUser->secretCode);
-       $stmt->execute();
+        // $role = "user";
+        // hash the password
+        $hashedpassword = $this->hashPassword($postedUser->password);
 
-       $account = $this->connection->lastInsertId();
+        $stmt = $this->connection->prepare("INSERT INTO user ( firstName , lastName, password, email , role , secretCode) VALUES (:firstName , :lastName, :password, :email , :role, :secretCode)");
+        $stmt->bindParam(':firstName', $postedUser->firstName);
+        $stmt->bindParam(':lastName', $postedUser->lastName);
+        $stmt->bindParam(':password', $hashedpassword);
+        $stmt->bindParam(':email', $postedUser->email);
+        $stmt->bindParam(':role', $postedUser->role);
+        $stmt->bindParam(':secretCode', $postedUser->secretCode);
+        $stmt->execute();
 
-            return $this->getOneAccountById($account);
+        $account = $this->connection->lastInsertId();
+
+        return $this->getOneAccountById($account);
     }
 
     // hash the password (currently uses bcrypt)
@@ -74,7 +74,7 @@ class UserRepository extends Repository
     function update($user, $id)
     {
         try {
-            if ($user->firstName == "" || $user->lastName==""||$user->secretCode=="") {
+            if ($user->firstName == "" || $user->lastName == "" || $user->secretCode == "") {
                 return "fill all the needed information";
             }
             $stmt = $this->connection->prepare("UPDATE user SET firstName = ?, lastname = ?, secretCode = ? WHERE id = ?");
@@ -84,13 +84,13 @@ class UserRepository extends Repository
         } catch (PDOException $e) {
             echo $e;
         }
-     }
+    }
 
-     //checks the given secret code with the already in database
+    //checks the given secret code with the already in database
     function getUserByEmail($email)
-     {
+    {
         try {
-           
+
             $stmt = $this->connection->prepare("SELECT * FROM user  WHERE email = :email");
             $stmt->bindParam(':email', $email);
             $stmt->execute();
@@ -100,16 +100,16 @@ class UserRepository extends Repository
             if ($row == null) {
                 return null;
             }
-           
+
             return $this->rowToUser($row);
         } catch (PDOException $e) {
             echo $e;
         }
-     }
+    }
 
-     // after checking the secret code a way of changing a new password
-     function changePassword($id,$password)
-     {
+    // after checking the secret code a way of changing a new password
+    function changePassword($id, $password)
+    {
         try {
             $hashedpassword = $this->hashPassword($password);
             $stmt = $this->connection->prepare("UPDATE user SET password = ? WHERE id = ?");
@@ -120,13 +120,13 @@ class UserRepository extends Repository
         } catch (PDOException $e) {
             echo $e;
         }
-     }
+    }
 
-     // get one account by id
-     function getOneAccountById($id)
-     {
+    // get one account by id
+    function getOneAccountById($id)
+    {
         try {
-           
+
             $stmt = $this->connection->prepare("SELECT * FROM user  WHERE id = :id");
             $stmt->bindParam(':id', $id);
             $stmt->execute();
@@ -136,18 +136,18 @@ class UserRepository extends Repository
             if ($row == null) {
                 return null;
             }
-           
+
             return $this->rowToUser($row);
         } catch (PDOException $e) {
             echo $e;
         }
-     }
+    }
 
     // changes the row data to type of user
-     function rowToUser($row)
-     {
-        $user= new User();
-        
+    function rowToUser($row)
+    {
+        $user = new User();
+
         $user->id = $row["id"];
         $user->firstName = $row["firstName"];
         $user->lastName = $row["lastName"];
@@ -155,19 +155,44 @@ class UserRepository extends Repository
         $user->secretCode = $row["secretCode"];
         $user->role = $row["role"];
         return $user;
-     }
+    }
 
-     function checkUserExist($userId)
-     {
-         $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id");
-             $stmt->bindParam(':id', $userId);
-             $stmt->execute();
+    function checkUserExist($userId)
+    {
+        $stmt = $this->connection->prepare("SELECT * FROM user WHERE id = :id");
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
 
-             $stmt->setFetchMode(PDO::FETCH_ASSOC);
-            $row = $stmt->fetch();
-            // if ($row == null) {
-            //     return false;
-            // }
-             return $row;
-     }
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch();
+        // if ($row == null) {
+        //     return false;
+        // }
+        return $row;
+    }
+
+    function getAllUsersNotFriends($userId)
+    {
+
+        try {
+            $stmt = $this->connection->prepare("SELECT u.*
+            FROM user u
+            LEFT JOIN friends f ON (u.id = f.user1 AND f.user2 = :userId)
+                                  OR (u.id = f.user2 AND f.user1 = :userId)
+            WHERE f.user1 IS NULL AND f.user2 IS NULL");
+
+            $stmt->bindParam(':userId', $userId);
+            $stmt->execute();
+
+            $users = array();
+
+            while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+                $users[] = $this->rowToUser($row);
+            }
+
+            return $users;
+        } catch (PDOException $e) {
+            echo $e;
+        }
+    }
 }
